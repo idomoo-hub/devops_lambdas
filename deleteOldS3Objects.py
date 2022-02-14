@@ -1,5 +1,7 @@
 import boto3
 from datetime import datetime, timedelta, timezone
+import json
+import os
 
 
 def delete_old_s3_files(bucket_name, days):
@@ -34,5 +36,11 @@ def delete_old_s3_files(bucket_name, days):
     print("no delete candidates found")
 
 
-if __name__ == "__main__":
-    delete_old_s3_files("sftp-oregon.idomoo.com", 7)
+def lambda_handler(event, context):
+    bucket_name = os.environ["BUCKET_NAME"]
+    days_old = int(os.environ["DAYS_OLD"])
+    delete_old_s3_files(bucket_name, days_old)
+    return {
+        'statusCode': 200,
+        'body': json.dumps('execution done.')
+    }
