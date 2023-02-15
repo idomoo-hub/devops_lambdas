@@ -22,18 +22,19 @@ def delete_old_s3_files(bucket_name, days):
         for item in page["Contents"]:
             if(item['LastModified'] < past and not item['Key'].endswith('/')):
                 delete_candidates.append({"Key": item['Key']})
+        if(delete_candidates):
+            print(f"delete candidates(amount {len(delete_candidates)}):", delete_candidates)
+            delete_response = client.delete_objects(
+                Bucket=bucket_name,
+                Delete={
+                    'Objects': delete_candidates
+                }
+            )
+            print(delete_response)
+            delete_candidates = []
+        else:
+            print(f"no delete candidates found on page {counter}")
         counter += 1
-    if(delete_candidates):
-        print("delete candidates:", delete_candidates)
-        delete_response = client.delete_objects(
-            Bucket=bucket_name,
-            Delete={
-                'Objects': delete_candidates
-            }
-        )
-        print(delete_response)
-        return
-    print("no delete candidates found")
 
 
 def lambda_handler(event, context):
